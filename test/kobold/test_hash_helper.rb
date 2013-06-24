@@ -1,3 +1,6 @@
+require 'kobold'
+require 'kobold/hash_helper'
+require 'kobold_test/custom_assertions'
 require 'ruby-debug'
 
 class HashHelperTest < Test::Unit::TestCase
@@ -16,7 +19,7 @@ class HashHelperTest < Test::Unit::TestCase
                                :item_product_app_key => "rolando",
                                :item_product_publisher_id => 1}
 
-    assert_all_keys_match(expected_flattened_hash, flattened_hash)
+    TestHelpers::CustomAssertions::assert_deep_compare(expected_flattened_hash, flattened_hash)
   end
 
   def test_flatten_hash_with_list
@@ -34,7 +37,7 @@ class HashHelperTest < Test::Unit::TestCase
                                "items_1_sku" => "my_item2",
                                "items_1_product_app_key" => "rolando"}
 
-    assert_all_keys_match(expected_flattened_hash, flattened_hash)
+    TestHelpers::CustomAssertions::assert_deep_compare(expected_flattened_hash, flattened_hash)
   end
 
   def test_preserve_existing_keys

@@ -1,5 +1,5 @@
 require 'ruby-debug'
-require 'ruby_misc_helpers'
+require 'kobold/comparison'
 require 'test-unit'
 
 class UnorderedListCompareTest < Test::Unit::TestCase
