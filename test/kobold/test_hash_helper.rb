@@ -49,5 +49,21 @@ class HashHelperTest < Test::Unit::TestCase
     #        is which because hashes are unordered
     assert Set.new(flattened_hash.values) == Set.new([1, 2])
   end
+
+  def test_symbolize_hash
+    hash     = { "a" => "b", "c" => "d" }
+    expected = { :a => "b", :c => "d" }
+
+    symbolized_hash = HashHelper::symbolize_keys(hash)
+    TestHelpers::CustomAssertions::assert_deep_compare(expected, symbolized_hash)
+  end
+  
+  def test_deep_symbolize_keys
+    hash     = { "a" => "a", "b" =>  {"c" => "d"} }
+    expected = { :a => "a", :b => {:c => "d"} }
+    
+    deep_symbolized_hash = HashHelper::deep_symbolize_keys(hash)
+    TestHelpers::CustomAssertions::assert_deep_compare(expected, deep_symbolized_hash)
+  end
 end
 

@@ -78,4 +78,16 @@ class HashHelper
     end
     return new_hash
   end
+
+  # this symbolizes all the way down.  Except if you have a nested array
+  # of hashes.  That it doesn't currently do.  Let's consider adding
+  # that only if needed.
+  def self.deep_symbolize_keys(hash)
+    hash.inject({}) { |result, (key, value)|
+      value = deep_symbolize_keys(value) if value.is_a?(Hash)
+      result[(key.to_sym rescue key) || key] = value
+      result
+    }
+  end
+
 end
