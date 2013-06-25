@@ -221,3 +221,34 @@ response_code
 
 response_flash (Optional, Rails only)
 
+##kobold_rails_test
+
+###TestHelpers::ActiveResourceFake
+
+Instead of relying on an external service for ActiveResource, we can rely on an in-memory hash for 
+testing.  Every time "create" is called, we store the created instance in a hash.  We look into this hash
+whenever find is called.
+
+####install_activeresource_fake
+
+Monkey-patches several methods on ActiveResource::Base to introduce the desired isolation
+
+####uninstall_activeresource_fake
+
+Reverts all the monkey-patches from install_activeresource_fake to return ActiveResource behavior back to normal.
+
+####Mixin vs. Module methods
+
+You are welcome to use the module methods (eg. ActiveResourceFake.install_activeresource_fake), but you are
+responsible for your own cleanup when your test is complete.  If you do not cleanup, your test's run leaks into
+subsequent tests in the suite, which is not desirable.
+
+Alternatively, you can use the mixin by "include ActiveResourceFake" in the TestCase subclass.  This will call
+install_activeresource_fake in the setup, and uninstall_activeresource_fake in the teardown.  Explicit is
+better than implicit, but even better is making sure your tests are isolated from each other.
+
+###TestHelpers::Request
+
+##kobold_sinatra_test
+
+###TestHelpers::Request
