@@ -116,7 +116,8 @@ key.  If the value for one of these keys is another hash, we will end up calling
 hash.  The nesting is demonstrated here:
 
 ```ruby
-ComparisonHelper::compare({:a => [{:a => 1, :b => 2}, {:c => 3, :d => 4}]}, {:a => [{:a => 2, :b => 2}, {:c => 4, :d => 4}]})
+ComparisonHelper::compare({:a => [{:a => 1, :b => 2}, {:c => 3, :d => 4}]}, 
+                          {:a => [{:a => 2, :b => 2}, {:c => 4, :d => 4}]})
 # => [{:a=>[{:a=>1}, {:c=>3}]}, {:a=>[{:a=>2}, {:c=>4}]}] 
 ```
 
@@ -138,9 +139,85 @@ ComparisonHelper::compare({:create_date => ComparisonHelper::DontCare.new(:rule 
 
 The documented rules are as follows:
 
-:not_nil_or_missing - pass as long as the value is not nil, or :missing
+:not_nil_or_missing - pass as long as the value is not nil, or :missing (this is the default)
+
 :array - pass as long as the value is an array.  If :length is supplied as an option to the constructor, assert that it 
 is the right length as well.
+
 :json - pass as long as it parses as json
+
 :iso8601_datetime - pass as long as it parses as a DateTime of the form "%Y-%m-%dT%H:%M:%S%z"
+
 :no_rules - just pass, no matter what
+
+You can also use DontCares with the :dontcare symbol.  If you do that, the rule is set to the default 
+(not_nil_or_missing)
+
+#####Options
+
+compare takes a hash of optional arguments.  Defaults are:
+
+```ruby
+default_type_compare = {:hash => :full,
+                        :ordered => true}
+```
+
+The :hash key can be :full or :existing.  This option really affects the keys that are used to compare hashes.
+If :hash is set to :full, the list of keys we compare is the union of keys from both hashes.  If :hash is set to
+:existing, we only compare the keys from the first hash.  The idea with an :existing compare is that you are only 
+validating a subset of the keys, and don't care about extra keys that might be in the actual result.
+
+:ordered can be true or false, and affects array comparisons.  There are times when you want to compare two lists
+as if they were sets - that is, you don't care about the order that the items appear in the lists as long as the elements
+in one list all occur in the second.  :ordered defaults to true.
+
+The cost of doing an unordered comparison is that we lose partial diffing if the list contains some nested
+structure.  Basically, we only know if there is a match in the other list or not.  If there is not, we don't know 
+which element in the other list we should diff against.  To clarify, this example:
+
+```ruby
+ComparisonHelper::compare([{:a => 1, :b => 2}, {:a => 3, :b => 4}], 
+                          [{:a => 2, :b => 2}, {:a => 3, :b => 5}])
+# => [[{:a=>1}, {:b=>4}], [{:a=>2}, {:b=>5}]] 
+ComparisonHelper::compare([{:a => 1, :b => 2}, {:a => 3, :b => 4}], 
+                          [{:a => 2, :b => 2}, {:a => 3, :b => 5}], 
+                          :ordered => false)
+# => [[{:a=>1, :b=>2}, {:a=>3, :b=>4}], [{:a=>2, :b=>2}, {:a=>3, :b=>5}]] 
+
+```
+
+##kobold_test
+
+###TestHelpers::CustomAssertions
+
+####assert_deep_compare(expected, actual, options={})
+
+This calls into ComparisonHelper::compare(expected, actual).  If the result is not :match, we raise an 
+AssertionError.
+
+###TestHelpers::Response
+
+####create_response_stub(options)
+
+Create an HTTP Response stub.
+
+####assert_response_matches(options)
+
+Compare the an expected response with the actual response, in terms of status code, payload and headers
+
+Takes a hash, options, with the following keys:
+
+method - :get, :post, :put or :delete
+
+path - Optional, path to the endpoint 
+
+expected - Hash of :code, :headers and :payload
+
+parsed_body and/or response_body
+
+response_headers 
+
+response_code 
+
+response_flash (Optional, Rails only)
+
