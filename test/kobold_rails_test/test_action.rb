@@ -1,3 +1,4 @@
+require 'kobold_rails_test'
 require 'ruby-debug'
 require 'test/unit'
 

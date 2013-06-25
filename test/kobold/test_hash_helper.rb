@@ -1,6 +1,4 @@
 require 'kobold'
-require 'kobold/hash_helper'
-require 'kobold_test/custom_assertions'
 require 'ruby-debug'
 
 class HashHelperTest < Test::Unit::TestCase
